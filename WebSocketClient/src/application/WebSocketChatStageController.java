@@ -134,6 +134,8 @@ public class WebSocketChatStageController {
 	public class WebSocketClient{
 		private Session session;
 		private ByteBuffer lastAttachment = null;
+		private String attachmentName;
+		private boolean ifLastAttach = false;
 		
 		public WebSocketClient() {
 			connectToWebSocket();
@@ -172,7 +174,6 @@ public class WebSocketChatStageController {
 			lastAttachment.flip();
 			byteBuffer.clear();
 			
-			chatTextArea.setText(chatTextArea.getText() + "Attachment sent\n");
 		}
 		
 		public boolean checkAttachment() {
@@ -193,8 +194,14 @@ public class WebSocketChatStageController {
 		
 		public void sendMessage(String message) {
 			try {
-				System.out.println("Message was sent: " + message);
-				session.getBasicRemote().sendText(user + ": " + message);
+				if(ifLastAttach == false) {
+					System.out.println("Message was sent: " + message);
+					session.getBasicRemote().sendText(user + ": " + message);
+				}
+				else {
+					attachmentName = new String(message);
+					ifLastAttach = false;
+				}
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
@@ -215,7 +222,8 @@ public class WebSocketChatStageController {
 			channel.write(lastAttachment);
 			channel.close();
 			fileOutStream.close();
-			chatTextArea.setText(chatTextArea.getText() + "Attachment downloaded\n");
+			ifLastAttach = true;
+			chatTextArea.setText(chatTextArea.getText() + "Attachment downloaded");
 		}
 		@FXML
 	    private void sendFile() throws IOException {
@@ -225,8 +233,8 @@ public class WebSocketChatStageController {
 			fileChooser.setTitle("Wybierz plik");
 			Window stage = null;
 			File selectedFile = fileChooser.showOpenDialog(stage);
-			
 			if(selectedFile == null) return;
+			attachmentName = new String(selectedFile.getName());
 	    	try {
 				file = new RandomAccessFile(selectedFile.getAbsolutePath(), "r");
 			} catch (FileNotFoundException e) {
@@ -244,7 +252,8 @@ public class WebSocketChatStageController {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			chatTextArea.setText(chatTextArea.getText() + "Attachment sent\n");
+			chatTextArea.setText(chatTextArea.getText() + "Attachment sent: " + attachmentName);
+			session.getBasicRemote().sendText("Attachment received: " + attachmentName);
 			try {
 				channel.close();
 			} catch (IOException e1) {
