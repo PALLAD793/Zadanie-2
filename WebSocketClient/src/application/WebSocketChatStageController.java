@@ -184,7 +184,7 @@ public class WebSocketChatStageController {
 		private void connectToWebSocket() {
 			WebSocketContainer webSocketContainer = ContainerProvider.getWebSocketContainer();
 			try {
-				URI uri = URI.create("ws://localhost:8080/WebSocket/WebSocketEndpoint");
+				URI uri = URI.create("ws://localhost:8080/Chat/WebSocketEndpoint");
 				webSocketContainer.connectToServer(this, uri);
 			} catch(DeploymentException | IOException e) {
 				e.printStackTrace();
