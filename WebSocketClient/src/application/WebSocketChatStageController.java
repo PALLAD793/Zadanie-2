@@ -166,10 +166,11 @@ public class WebSocketChatStageController {
 		public void onMessage(ByteBuffer byteBuffer, Session session) {
 			System.out.println("File was received");
 			
-			lastAttachment = ByteBuffer.allocateDirect(byteBuffer.capacity()+1);
+			lastAttachment = ByteBuffer.allocateDirect(byteBuffer.capacity());
 			byteBuffer.rewind();
 			lastAttachment.put(byteBuffer);
 			lastAttachment.flip();
+			byteBuffer.clear();
 			
 			chatTextArea.setText(chatTextArea.getText() + "Attachment sent\n");
 		}
